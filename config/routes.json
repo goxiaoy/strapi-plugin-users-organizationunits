@@ -1,0 +1,84 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/organization-units",
+      "handler": "organization-unit.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/organization-units/count",
+      "handler": "organization-unit.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/organization-units/:id",
+      "handler": "organization-unit.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/organization-units",
+      "handler": "organization-unit.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/organization-units/move",
+      "handler": "organization-unit.move",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/organization-units/:id",
+      "handler": "organization-unit.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/organization-units/:id",
+      "handler": "organization-unit.delete",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/organization-units/:id/users",
+      "handler": "users-organizationunits.findByOu",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/organization-units/:id/users",
+      "handler": "users-organizationunits.addToOu",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/organization-units/:id/users",
+      "handler": "users-organizationunits.removeFromOu",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

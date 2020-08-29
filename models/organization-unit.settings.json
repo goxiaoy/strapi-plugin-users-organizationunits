@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "organization_unit",
+  "info": {
+    "name": "organizationUnit"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "displayName": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "maxLength": 100,
+      "minLength": 1
+    },
+    "code": {
+      "type": "string",
+      "configurable": false
+    },
+    "users": {
+      "plugin": "users-permissions",
+      "collection": "user",
+      "via": "organization_units",
+      "dominant": true
+    },
+    "parent": {
+      "plugin": "users-organizationunits",
+      "model": "organization-unit",
+      "via": "children"
+    },
+    "children": {
+      "plugin": "users-organizationunits",
+      "collection": "organization-unit",
+      "via": "parent"
+    },
+    "roles": {
+      "plugin": "users-permissions",
+      "collection": "role"
+    }
+  }
+}
