@@ -2,7 +2,7 @@
  */
 import React, { Component, useState, useEffect, useReducer } from 'react'
 import { FormattedMessage } from 'react-intl';
-import { Tree, Card, Skeleton, Descriptions, Row, Col, Menu, Alert } from 'antd';
+import { Tree, Card, Skeleton, Descriptions, Row, Col, Menu, Alert,Divider } from 'antd';
 import { getRequestUrl, getTrad } from '../../utils'
 import { LoadingIndicatorPage, useGlobalContext, request } from 'strapi-helper-plugin';
 import { Button } from '@buffetjs/core';
@@ -29,6 +29,7 @@ const OuList = () => {
     const [showModelEdit, setShowModalEdit] = useState(false);
 
     const [rightClickItem, setRightClickItem] = useState(null);
+    const [selectedKeys,setSelectedKeys] = useState([]);
 
     const [currentOu, setCurrentOu] = useOuContext();
 
@@ -41,6 +42,9 @@ const OuList = () => {
 
 
     const fetchOuList = async () => {
+
+
+        
         //remove items
         setCurrentOu(null);
 
@@ -137,9 +141,8 @@ const OuList = () => {
     };
 
     const onRightClick = ({event,node}) => {
-        console.log(event.currentTarget)
-        var x = event.currentTarget.offsetLeft + event.currentTarget.clientWidth;
-        var y = event.currentTarget.offsetTop;
+        var x = event.clientX;
+        var y = event.clientY
         setRightClickItem({
             display: true,
             pageX: x,
@@ -147,14 +150,10 @@ const OuList = () => {
             id: node.id,
             node: node
         });
-
-        console.log({
-            display: true,
-            pageX: x,
-            pageY: y,
-            id: node.id,
-            node: node
-        })
+        setSelectedKeys([node.id]);
+        console.log(node);
+        setCurrentOu(node);
+        
     }
     const hideRight = e => {
         console.log("hide right");
@@ -183,20 +182,23 @@ const OuList = () => {
         }
         const { pageX, pageY, id, node } = { ...rightClickItem };
         const tmpStyle = {
-            position: "absolute",
-            left: `${pageX+10}px`,
-            top: `${pageY}px`
+            position: "fixed",
+            left: `${pageX}px`,
+            top: `${pageY}px`,
+            zIndex:999,
+            boxShadow: "rgba(0,0,0,0.3) 0px 0px 3px"
         };
         const menu = (
             <Menu
                 onClick={handleMenuClick}
+                onMouseLeave={hideRight}
                 style={tmpStyle}
-                //TODO
-                // className={styles.pop}
             >
-                <Menu.Item key='add'><FontAwesomeIcon icon={faPlus} /><FormattedMessage id={getTrad("ou.addchild")} /> </Menu.Item>
-                <Menu.Item key='edit'><FontAwesomeIcon icon={faPencilAlt} /> <FormattedMessage id={getTrad("ou.edit")} /></Menu.Item>
-                <Menu.Item key='delete'><FontAwesomeIcon icon={faTrash} /><FormattedMessage id={getTrad("ou.delete")} /></Menu.Item>
+                <Menu.Item style={{margin:0}} key='add'><FontAwesomeIcon style={{marginRight:"10px"}} icon={faPlus} /><FormattedMessage id={getTrad("ou.addchild")} /> </Menu.Item>
+                <Divider style={{margin:0,padding:0}}/>
+                <Menu.Item style={{margin:0}} key='edit'><FontAwesomeIcon style={{marginRight:"10px"}} icon={faPencilAlt} /><FormattedMessage id={getTrad("ou.edit")} /></Menu.Item>
+                <Divider style={{margin:0,padding:0}}/>
+                <Menu.Item style={{margin:0}} key='delete'><FontAwesomeIcon style={{marginRight:"10px"}} icon={faTrash} /><FormattedMessage id={getTrad("ou.delete")} /></Menu.Item>
             </Menu>
             // <div style={tmpStyle} className="self-right-menu" onMouseLeave={hideRight}>
             //     <a onClick={() => setShowModalAdd(true)}></a>
@@ -252,12 +254,14 @@ const OuList = () => {
                     onDragEnter={onDragEnter}
                     onDrop={onDrop}
                     onSelect={(selectedKeys, info) => {
+                        setSelectedKeys(selectedKeys)
                         setCurrentOu(info.selected ? info.node : null);
                     }}
                     treeData={ous}
                     onRightClick={onRightClick}
                     //selectedKeys={selectedKeys}
                     defaultExpandAll={true}
+                    selectedKeys = {selectedKeys}
                     //expandedKeys={expandedKeys}
                     switcherIcon={<DownOutlined />}
                 />

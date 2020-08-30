@@ -22,5 +22,10 @@
     "ou.root":"根节点",
     "ou.pleaseselect":"请选择一个组织",
     "ou.edit":"编辑",
-    "ou.alert":"左键点击查看用户，右键点击操作"
+    "ou.alert":"左键点击查看用户，右键点击操作，拖动改变层级",
+    "ou.userslist": "用户",
+    "ou.roleslist": "角色",
+    "ou.adduser": "添加用户",
+    "ou.remove": "移出",
+    "ou.removeuserwarning": "将用户移出 "
 }

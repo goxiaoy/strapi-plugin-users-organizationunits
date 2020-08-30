@@ -9,7 +9,7 @@ import React, { memo } from 'react';
 import pluginId from '../../pluginId';
 import { Row, Col } from 'antd';
 import OrganizationUnit from '../../components/OuList';
-import User from '../../components/User';
+import Detail from '../../components/OuDetail';
 import { useState } from 'react'
 import OuContext from '../../contexts/ouContext'
 const HomePage = () => {
@@ -17,12 +17,12 @@ const HomePage = () => {
   return (
     <OuContext.Provider value={useState(null)}>
       <Row type="flex" justify="center" gutter={16}>
-        <Col span={8}>
+        <Col span={12}>
           <OrganizationUnit>
           </OrganizationUnit>
         </Col>
-        <Col span={16}>
-          <User />
+        <Col span={12}>
+          <Detail />
         </Col>
       </Row>
     </OuContext.Provider>

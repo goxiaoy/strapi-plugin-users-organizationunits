@@ -1,238 +1,195 @@
-/** organization user list
- */
-import React, { Component, useState, useReducer, useEffect } from 'react'
-import { Card, Descriptions,Skeleton, Row, Col  } from 'antd'
-import { Table } from '@buffetjs/core';
-import { sortBy as sort } from 'lodash';
-import { Button } from '@buffetjs/core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useState, useEffect } from 'react'
 import {
-    faPencilAlt,
     faTrashAlt,
+    faPlus
 } from '@fortawesome/free-solid-svg-icons';
+import { Card, Descriptions, Row, Col, Table } from 'antd'
 import useOuContext from '../../hooks/useOuContext';
 import { getRequestUrl, getTrad } from '../../utils';
 import { useGlobalContext, request } from 'strapi-helper-plugin';
-
-const headers = [
-    {
-        name: 'Id',
-        value: 'id',
-        isSortEnabled: true,
-    },
-    {
-        name: 'Username',
-        value: 'username',
-        isSortEnabled: false,
-    },
-    {
-        name: 'Email',
-        value: 'email',
-        isSortEnabled: false,
-    }
-];
+import { Button } from '@buffetjs/core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PopUpWarning } from 'strapi-helper-plugin';
+import qs from 'qs';
+import { get } from 'lodash';
+import UserModal from '../UserModal'
 
 
-const rows = [
-    {
-        id: 1,
-        firstname: 'Pierre',
-        lastname: 'Gagnaire',
-        recipe: 'Ratatouille',
-        restaurant: 'Le Gaya',
-    },
-    {
-        id: 2,
-        firstname: 'Georges',
-        lastname: 'Blanc',
-        recipe: 'Beef bourguignon',
-        restaurant: 'Le Georges Blanc',
-    },
-    {
-        id: 3,
-        firstname: 'Mars',
-        lastname: 'Veyrat',
-        recipe: 'Lemon Chicken',
-        restaurant: 'La Ferme de mon père',
-    },
-];
-
-const updateAtIndex = (array, index, value) =>
-    array.map((row, i) => {
-        if (index === i) {
-            row._isChecked = value;
-        }
-        return row;
-    });
-
-const updateRows = (array, shouldSelect) =>
-    array.map(row => {
-        row._isChecked = shouldSelect;
-        return row;
-    });
-
-function reducer(state, action) {
-    const { nextElement, sortBy, type } = action;
-
-    switch (type) {
-        case 'CHANGE_SORT':
-            if (state.sortBy === sortBy && state.sortOrder === 'asc') {
-                return { ...state, sortOrder: 'desc' };
-            }
-
-            if (state.sortBy !== sortBy) {
-                return { ...state, sortOrder: 'asc', sortBy };
-            }
-
-            if (state.sortBy === sortBy && state.sortOrder === 'desc') {
-                return { ...state, sortOrder: 'asc', sortBy: nextElement };
-            }
-
-            return state;
-        case 'SELECT_ALL':
-            return { ...state, rows: updateRows(state.rows, true) };
-        case 'SELECT_ROW':
-            return {
-                ...state,
-                rows: updateAtIndex(state.rows, action.index, !action.row._isChecked),
-            };
-        case 'UNSELECT_ALL':
-            return { ...state, rows: updateRows(state.rows, false) };
-        default:
-            return state;
-    }
-}
-
-function init(initialState) {
-    const updatedRows = initialState.rows.map(row => {
-        row._isChecked = false;
-
-        return row;
-    });
-
-    return { ...initialState, rows: updatedRows };
-}
-
-function User() {
+const User = () => {
 
     const [currentOu, setCurrentOu] = useOuContext();
     const { formatMessage } = useGlobalContext();
-    const [showEditModal,setShowEditModal] = useState();
-    var initial = true;
-    const ouFilter = currentOu?.id ?? null;
-    console.log("filter " + ouFilter);
-    if (ouFilter == null) {
-        initial = false;
-    }
-    const [loading, setLoading] = useState(initial);
-    const [state, dispatch] = useReducer(
-        reducer,
-        {
-            headers,
-            rows,
-            sortBy: 'id',
-            sortOrder: 'asc',
-        },
-        init,
-    );
+    const [loading, setLoading] = useState(true);
 
-    const fetchUser = async (ouFilter) => {
+    const [currentUserIds, setCurrentUserIds] = useState([]);
+    const ouFilter = currentOu?.id ?? null;
+    const [showModalDelete, setShowModalDelete] = useState(false);
+    const [showModalAdd, setShowModalAdd] = useState(false);
+    const [removeButtonShow, setRemoveButtonShow] = useState(false);
+    const notOuFilter = ouFilter;
+
+    const defaultLimit = 10;
+
+    const [pageState, setPageState] = useState({
+        data: [],
+        pagination: {
+            current: 1,
+            pageSize: defaultLimit,
+        },
+    })
+    const columns = [
+        {
+            title: 'Id',
+            dataIndex: 'id',
+            sorter: true,
+            width: '20%',
+        },
+        {
+            title: 'Username',
+            dataIndex: 'username',
+            sorter: true,
+            width: '40%',
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+        },
+        {
+            title: 'Action',
+            dataIndex: '',
+            key: 'x',
+            render: (_, record) => <a onClick={() => { setCurrentUserIds([record.id]); setShowModalDelete(true); }}><FontAwesomeIcon icon={faTrashAlt} /> </a>
+        }
+    ];
+
+    const fetchUser = async (inOu, notInOu, sort, start, limit) => {
         setLoading(true);
         try {
-            var r = await request(getRequestUrl(`organization-units/${ouFilter}/users`));
-            console.log(r);
-        } catch (e) {
-            console.log(e);
-            strapi.notification.error(e);
+            start = start ?? 0;
+            limit = limit ?? defaultLimit
+            var queryObj = {
+                _start: start,
+                _limit: limit,
+                _sort: sort ?? "id"
+            };
+            var where = { organization_units_contains: inOu };
+            // var where = []
+            // if (inOu != null) {
+            //     where.push({ organization_units_contains: [inOu] });
+            // }
+            // if (notInOu != null) {
+            //     where.push({ organization_units_ncontains: [notInOu] });
+            // }
+            queryObj._where = where;
+            var data = await request(getRequestUrl(`organization-units/users?${qs.stringify(queryObj)}`));
+            var count = await request(getRequestUrl(`organization-units/users/count?${qs.stringify({ _where: where })}`));
+            setPageState({
+                ...pageState,
+                data,
+                pagination: {
+                    current: start / limit + 1,
+                    pageSize: limit,
+                    total: count
+                }
+            });
+        } catch (err) {
+            console.log(err);
+            const message = get(err, ['response', 'payload', 'message'], 'An error occured');
+            strapi.notification.error(message);
         } finally {
             setLoading(false);
         }
-
-
     }
-    useEffect(() => {
-        fetchUser(ouFilter);
-    }, [ouFilter]);
 
-    const areAllEntriesSelected = state.rows.every(
-        row => row._isChecked === true,
-    );
-    const bulkActionProps = {
-        icon: 'trash',
-        onConfirm: () => {
-            alert('Are you sure you want to delete these entries?');
-        },
-        translatedNumberOfEntry: 'entry',
-        translatedNumberOfEntries: 'entries',
-        translatedAction: 'Delete all',
-    };
-    const sortedRowsBy = sort(state.rows, [state.sortBy]);
-    const sortedRows =
-        state.sortOrder === 'asc' ? sortedRowsBy : sortedRowsBy.reverse();
-
-    const buildTable = (
-        <Table
-            headers={state.headers}
-            bulkActionProps={bulkActionProps}
-            onClickRow={(e, data) => {
-                console.log(data);
-                alert('You have just clicked');
-            }}
-            onChangeSort={({
-                sortBy,
-                firstElementThatCanBeSorted,
-                isSortEnabled,
-            }) => {
-                if (isSortEnabled) {
-                    dispatch({
-                        type: 'CHANGE_SORT',
-                        sortBy,
-                        nextElement: firstElementThatCanBeSorted,
-                    });
+    const removeUsers = async (ouId, userIds) => {
+        try {
+            await request(getRequestUrl(`organization-units/users/remove`), {
+                method: 'POST', body: {
+                    ouId: ouId,
+                    userIds: userIds
                 }
-            }}
-            onSelect={(row, index) => {
-                dispatch({ type: 'SELECT_ROW', row, index });
-            }}
-            onSelectAll={() => {
-                const type = areAllEntriesSelected ? 'UNSELECT_ALL' : 'SELECT_ALL';
-
-                dispatch({ type });
-            }}
-            rows={sortedRows}
-            sortBy={state.sortBy}
-            sortOrder={state.sortOrder}
-            withBulkAction
-            rowLinks={[
-                {
-                    icon: <FontAwesomeIcon icon={faPencilAlt} />,
-                    onClick: data => {
-                        console.log(data);
-                    },
-                },
-                {
-                    icon: <FontAwesomeIcon icon={faTrashAlt} />,
-                    onClick: data => {
-                        console.log(data);
-                    },
-                },
-            ]}
-        />
-    );
-
-    const onSubmit = () => {
-        // fetchOuList();
-        setShowEditModal(false);
+            });
+            setRemoveButtonShow(false);
+            fetchUser(ouFilter, null);
+        } catch (err) {
+            console.log(err);
+            const message = get(err, ['response', 'payload', 'message'], 'An error occured');
+            strapi.notification.error(message);
+        }
     }
 
-    
-    return (<Card style={{ marginTop: 16, marginRight: 8 }} loading={loading} title={currentOu?.displayName ?? ''} >
-        {ouFilter == null ?
-            <Descriptions title={formatMessage({id:getTrad("ou.pleaseselect")})}></Descriptions> :
-            buildTable
-        }
-      
-    </Card>);
+
+    useEffect(() => {
+        fetchUser(ouFilter, null);
+    }, [ouFilter])
+
+    const handleTableChange = (pagination, filters, sorter) => {
+        console.log(sorter);
+        console.log(filters);
+        console.log(pagination)
+        fetchUser(ouFilter, null, null, (pagination.current - 1) * pagination.pageSize, pagination.pageSize);
+    };
+    const rowSelection = {
+        onChange: (selectedRowKeys, selectedRows) => {
+            console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+            var newUserIds = selectedRows.map(p => p.id);
+            setRemoveButtonShow(newUserIds.length > 0);
+            setCurrentUserIds(newUserIds);
+        },
+        // getCheckboxProps: record => ({
+        //     disabled: record.name === 'Disabled User',
+        //     // Column configuration not to be checked
+        //     name: record.name,
+        // }),
+    };
+
+    const { data, pagination } = pageState;
+    return (
+        <Card bordered={false} loading={loading} style={{ margin: 0, padding: 0 }} extra={
+            <div><Row gutter={8}>
+                {removeButtonShow && <Col><Button color="delete" icon={<FontAwesomeIcon icon={faTrashAlt} />} label={formatMessage({ id: getTrad("ou.remove") })} onClick={() => {
+                    setShowModalDelete(true)
+                }} /> </Col>}
+                <Col><Button color="primary" icon={<FontAwesomeIcon icon={faPlus} />} label={formatMessage({ id: getTrad("ou.adduser") })} onClick={() => {
+                    setShowModalAdd(true);
+                }} /> </Col>
+            </Row></div>
+        } >
+            <Table
+                rowSelection={{
+                    type: 'checkbox',
+                    ...rowSelection,
+                }}
+                columns={columns}
+                rowKey={record => record.id}
+                dataSource={data}
+                pagination={{
+                    ...pagination,
+                    showSizeChanger: true
+                }}
+                loading={false}
+                onChange={handleTableChange}
+            />
+            <UserModal ouId={ouFilter} isOpen={showModalAdd} onToggle={() => setShowModalAdd(pre => !pre)} onSubmit={() => {
+                setShowModalAdd(false);
+                fetchUser(ouFilter, null);
+            }} ></UserModal>
+            <PopUpWarning
+                content={{
+                    message: formatMessage({ id: getTrad("ou.removeuserwarning") }) + currentOu.displayName,
+                    title: getTrad("ou.deletetitle"),
+                    confirm: getTrad("ou.delete"),
+                }}
+                isOpen={showModalDelete}
+                onConfirm={async () => {
+                    console.log(currentUserIds)
+                    await removeUsers(ouFilter, currentUserIds);
+                    setShowModalDelete(false);
+                }}
+                toggleModal={() => setShowModalDelete(false)}
+                popUpWarningType="warning"
+            />
+        </Card>);
 }
 
 export default User;

@@ -18,6 +18,38 @@
     },
     {
       "method": "GET",
+      "path": "/organization-units/users",
+      "handler": "users-organizationunits.findByOu",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/organization-units/users/count",
+      "handler": "users-organizationunits.countByOu",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/organization-units/users/add",
+      "handler": "users-organizationunits.addToOu",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/organization-units/users/remove",
+      "handler": "users-organizationunits.removeFromOu",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/organization-units/:id",
       "handler": "organization-unit.findOne",
       "config": {
@@ -52,30 +84,6 @@
       "method": "DELETE",
       "path": "/organization-units/:id",
       "handler": "organization-unit.delete",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/organization-units/:id/users",
-      "handler": "users-organizationunits.findByOu",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/organization-units/:id/users",
-      "handler": "users-organizationunits.addToOu",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "DELETE",
-      "path": "/organization-units/:id/users",
-      "handler": "users-organizationunits.removeFromOu",
       "config": {
         "policies": []
       }

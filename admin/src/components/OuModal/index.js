@@ -133,76 +133,81 @@ const OuModal = ({ ou, parentOu, isOpen, onToggle, onSubmit }) => {
         headerBreadcrumbs={headerBreadcrumbs}
       />
       <form onSubmit={handleSubmit}>
-        <ModalBody>
-          <ModalForm>
-            <ModalSection>
-              <Wrapper>
-                <Padded top size="20px">
-                  {parentOu != null && <Row>
-                    <Input
-                      key="parent"
-                      label={getTrad("ou.parent")}
-                      autoFocus={false}
-                      disabled={true}
-                      error={formErrors['parent']}
-                      name="parent"
-                      type='text'
-                      onChange={handleChange}
-                      value={parentOu?.displayName ?? ""}
-                    />
-                  </Row>}
 
-                  <Row>
-                    <Input
-                      key="displayName"
-                      label={getTrad("ou.displayName")}
-                      autoFocus={true}
-                      disabled={false}
-                      error={formErrors["displayName"]}
-                      name={"displayName"}
-                      onChange={handleChange}
-                      value={modifiedData["displayName"]}
-                      type='text'
-                      validations={{
-                        required: true,
-                      }}
-                    />
-                  </Row>
-                </Padded>
-              </Wrapper>
-            </ModalSection>
-            <ModalSection>
-              <Padded top size="3px">
-                <Text fontSize="xs" color="grey" fontWeight="bold" textTransform="uppercase">
-                  <FormattedMessage id={getTrad("ou.roles")}>
-                    {txt => txt}
-                  </FormattedMessage>
-                </Text>
+        <ModalForm>
+          <ModalSection>
+            <Wrapper>
+              <Padded top size="20px">
+                {parentOu != null && <Row>
+                  <Input
+                    key="parent"
+                    label={getTrad("ou.parent")}
+                    autoFocus={false}
+                    disabled={true}
+                    error={formErrors['parent']}
+                    name="parent"
+                    type='text'
+                    onChange={handleChange}
+                    value={parentOu?.displayName ?? ""}
+                  />
+                </Row>}
+
+                <Row>
+                  <Input
+                    key="displayName"
+                    label={getTrad("ou.displayName")}
+                    autoFocus={true}
+                    disabled={false}
+                    error={formErrors["displayName"]}
+                    name={"displayName"}
+                    onChange={handleChange}
+                    value={modifiedData["displayName"]}
+                    type='text'
+                    validations={{
+                      required: true,
+                    }}
+                  />
+                </Row>
               </Padded>
-            </ModalSection>
-            <ModalSection>
-              <Wrapper>
-                <Padded top size="12px">
-                  <Row>
-                    <Col xs="6">
-                      <SelectRoles
-                        isDisabled={false}
-                        name="roles"
-                        onChange={handleChange}
-                        value={modifiedData.roles}
-                        error={formErrors.roles}
-                      />
-                    </Col>
-                  </Row>
-                </Padded>
-              </Wrapper>
-            </ModalSection>
+            </Wrapper>
+          </ModalSection>
+          <ModalSection>
+            <Padded top size="3px">
+              <Text fontSize="xs" color="grey" fontWeight="bold" textTransform="uppercase">
+                <FormattedMessage id={getTrad("ou.roles")}>
+                  {txt => txt}
+                </FormattedMessage>
+              </Text>
+            </Padded>
+          </ModalSection>
+          <ModalSection>
+            <Wrapper>
+              <Padded top size="12px">
+                <Row>
+                  <Col xs="6">
+                    <SelectRoles
+                      isDisabled={false}
+                      name="roles"
+                      onChange={handleChange}
+                      value={modifiedData.roles}
+                      error={formErrors.roles}
+                    />
+                  </Col>
+                </Row>
+              </Padded>
+            </Wrapper>
+          </ModalSection>
 
-          </ModalForm>
-          <ModalFooter>
+        </ModalForm>
+        <ModalFooter>
+          <section>
+            <Button type="button" color="cancel" onClick={onToggle}>
+              {formatMessage({ id: 'app.components.Button.cancel' })}
+            </Button>
             <Button color="success" type="submit" isLoading={isSubmiting} label={isAdd ? formatMessage({ id: getTrad("ou.create") }) : formatMessage({ id: getTrad("ou.edit") })}></Button>
-          </ModalFooter>
-        </ModalBody>
+          </section>
+        </ModalFooter>
+
       </form>
 
     </Modal >
@@ -220,7 +225,7 @@ export const AddOuModal = ({ parentOu, isOpen, onToggle, onSubmit }) => {
 AddOuModal.propTypes = {
   parentOu: PropTypes.object,
   isOpen: PropTypes.bool,
-  onToggle: PropTypes.fun
+  onToggle: PropTypes.func
 }
 AddOuModal.defaultProp = {
   parentOu: null,
@@ -236,7 +241,7 @@ export const EditOuModal = ({ ou, isOpen, onToggle, onSubmit }) => {
 EditOuModal.propTypes = {
   ou: PropTypes.object,
   isOpen: PropTypes.bool,
-  onToggle: PropTypes.fun
+  onToggle: PropTypes.func
 }
 EditOuModal.defaultProp = {
   ou: null,

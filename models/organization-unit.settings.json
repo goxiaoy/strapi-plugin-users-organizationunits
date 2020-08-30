@@ -23,8 +23,7 @@
     "users": {
       "plugin": "users-permissions",
       "collection": "user",
-      "via": "organization_units",
-      "dominant": true
+      "via": "organization_units"
     },
     "parent": {
       "plugin": "users-organizationunits",

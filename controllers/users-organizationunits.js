@@ -1,6 +1,7 @@
 'use strict';
 
-const validateBatch = require('./validation/batch')
+
+const {validateBatch} = require('./validation/batch')
 /**
  * users-organizationunits.js controller
  *
@@ -13,6 +14,10 @@ const sanitizeUser = user =>
     model: strapi.query('user', 'users-permissions').model,
   });
 
+  const sanitizeOu = user =>
+  sanitizeEntity(user, {
+    model: strapi.query('organization-unit', 'users-organizationunits').model,
+  });
 
 module.exports = {
 
@@ -35,13 +40,16 @@ module.exports = {
    * @param {*} ctx 
    */
   async findByOu(ctx, { populate } = {}) {
-    const {
-      id
-    } = ctx.params;
     var users;
-    users = await strapi.plugins['users-organizationunits'].services['users-organizationunits'].findOuUsers(id, ctx.query, populate);
+    users = await strapi.plugins['users-organizationunits'].services['users-organizationunits'].findOuUsers(ctx.query, populate);
     ctx.body = users.map(sanitizeUser);
   },
+
+  async countByOu(ctx) {
+    var count = await strapi.plugins['users-organizationunits'].services['users-organizationunits'].countOuUsers(ctx.query);
+    ctx.body = count;
+  },
+
   /**
    * batch add to ou
    * @param {} ctx 
@@ -51,11 +59,13 @@ module.exports = {
     try {
       data = await validateBatch(ctx.request.body);
     } catch (error) {
+      strapi.log.error(error);
       return ctx.send({
         error
       }, 400);
     }
-    return await strapi.plugins['users-organizationunits'].services["users-organizationunits"].addUsers(data.ouId, data.userIds);
+    var entity= await strapi.plugins['users-organizationunits'].services["users-organizationunits"].addUsers(data.ouId, data.userIds);
+    ctx.body = sanitizeOu(entity);
   },
   /**
    * batch remove from ou
@@ -66,10 +76,13 @@ module.exports = {
     try {
       data = await validateBatch(ctx.request.body);
     } catch (error) {
+      strapi.log.error(error);
+      console.log(error)
       return ctx.send({
         error
       }, 400);
     }
-    return await strapi.plugins['users-organizationunits'].services["users-organizationunits"].removeUsers(data.ouId, data.userIds);
+    var entity=  await strapi.plugins['users-organizationunits'].services["users-organizationunits"].removeUsers(data.ouId, data.userIds);
+    ctx.body = sanitizeOu(entity);
   }
 };

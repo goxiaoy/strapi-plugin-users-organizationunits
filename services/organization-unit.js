@@ -63,7 +63,7 @@ module.exports = {
   async update(params, data, { files } = {}) {
     await this.validate(data);
     var oldEntity = await this.findOne(params);
-    if(typeof(data.parent) !== 'undefined'){
+    if (typeof (data.parent) !== 'undefined') {
       if (data.parent != oldEntity.parent) {
         // move parent
         await this.move(params.id, data.parent);
@@ -90,7 +90,7 @@ module.exports = {
    */
 
   async delete(params) {
-    var children = await this.findChildren(params.id,true);
+    var children = await this.findChildren(params.id, true);
     var ids = children.map(p => p.id);
     ids.push(params.id);
     return await strapi.query('organization-unit', 'users-organizationunits').delete({ id_in: ids });
@@ -149,7 +149,7 @@ module.exports = {
     }
     if (parent == null) {
       //return all nodes
-      return await strapi.query('organization-unit', 'users-organizationunits').find();
+      return await strapi.query('organization-unit', 'users-organizationunits').find({ _limit: -1 });
     }
     const code = await this.getCodeOrNull(parent);
     return this.getAllChildrenWithParentCode(code, parent);
@@ -159,7 +159,7 @@ module.exports = {
    * @param {string} parent 
    */
   async getChildren(parent) {
-    return await this.find({ parent: parent, _sort: 'code:asc' });
+    return await this.find({ parent: parent, _sort: 'code:asc', _limit: -1 });
   },
   /**
    * 
@@ -168,7 +168,7 @@ module.exports = {
    */
   async getAllChildrenWithParentCode(code, parent) {
     var ret = await strapi.query('organization-unit', 'users-organizationunits').custom(searchQueries)({
-      code,parent
+      code, parent
     });
     return ret;
   },
@@ -178,7 +178,7 @@ module.exports = {
    * @param {string} parent 
    */
   async move(id, parent) {
-    if (parent === 'undefined'){
+    if (parent === 'undefined') {
       parent = null;
     }
     var ou = await this.findOne({ id: id });
@@ -201,22 +201,21 @@ module.exports = {
 
 const searchQueries = {
   bookshelf({ model }) {
-    return ({ code,parent }) => {
+    return ({ code, parent }) => {
       return model
-      .query(qb => qb.where("id", "<>", parent).andWhere("code", "like", `${code}%`)).fetchAll()
+        .query(qb => qb.where("id", "<>", parent).andWhere("code", "like", `${code}%`)).fetchAll()
         .then(results => results.toJSON());
     };
   },
   mongoose({ model }) {
-    
-    return ({ code,parent }) => {
+
+    return ({ code, parent }) => {
       //TODO
 
       // const re = new RegExp(id);
-
-      // return model.find({
-      //   $or: [{ username: re }, { email: re }],
-      // });
+      return model.find({
+        $and: [{ id: { $ne: parent } }, { code: {$regex: `${code}.*`} }],
+      });
     };
   },
 };
