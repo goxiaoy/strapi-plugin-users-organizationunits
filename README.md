@@ -3,6 +3,13 @@
 Preview
 ![Screenshots](https://raw.githubusercontent.com/Goxiaoy/strapi-plugin-users-organizationunits/master/res/homepage.png)
 
+
+Features:
+
+- manage orgnization unit as tree structure
+- link users and roles with one organization unit
+
+
 Used UI component 
 
 - [Ant-design](https://ant.design/)
@@ -49,10 +56,11 @@ How to use:
 Issues:
 --------
 
-- have not tested in mongodb
+- Have not tested in mongodb
 - Add uses filter not work
 - Performance issue
-- translation only in `en` adn `zh`
+- Translation only in `en` and `zh`
+- Concurrent editing
 
 Author:
 
