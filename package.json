@@ -1,7 +1,7 @@
 {
   "name": "strapi-plugin-users-organizationunits",
-  "version": "0.0.0",
-  "description": "This is the description of the plugin.",
+  "version": "3.1.4-beta",
+  "description": "Add organization units management to strapi",
   "strapi": {
     "name": "Organizationunits",
     "icon": "sitemap",
@@ -11,15 +11,20 @@
     "antd": "^4.4.0"
   },
   "author": {
-    "name": "A Strapi developer",
-    "email": "",
-    "url": ""
+    "name": "Goxiaoy",
+    "email": "xy1996mail@gmail.com",
+    "url": "https://github.com/Goxiaoy"
   },
   "maintainers": [
     {
-      "name": "A Strapi developer",
-      "email": "",
-      "url": ""
+      "name": "Goxiaoy",
+      "email": "xy1996mail@gmail.com",
+      "url": "https://github.com/Goxiaoy"
+    },
+    {
+      "name": "Jason",
+      "email": "138670424@qq.com",
+      "url": "https://github.com/Wulabalabo"
     }
   ],
   "engines": {
