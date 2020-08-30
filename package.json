@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-users-organizationunits",
-  "version": "3.1.4-beta",
+  "version": "3.1.4-beta.1",
   "description": "Add organization units management to strapi",
   "strapi": {
     "name": "Organizationunits",
