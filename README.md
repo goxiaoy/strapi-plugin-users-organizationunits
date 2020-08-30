@@ -1,7 +1,7 @@
 # Strapi plugin users-organizationunits
 
 Preview
-![Screenshots](./res/homepage.png)
+![Screenshots](https://raw.githubusercontent.com/Goxiaoy/strapi-plugin-users-organizationunits/master/res/homepage.png)
 
 Used UI component 
 
@@ -53,6 +53,11 @@ Issues:
 - Add uses filter not work
 - Performance issue
 - translation only in `en` adn `zh`
+
+Author:
+
+@Goxiaoy
+@Wulabalabo
 
 
 
