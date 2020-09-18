@@ -21,7 +21,7 @@ How to use:
 --------
 1. install package
     ```
-    npm install strapi-plugin-users-organizationunits@beta
+    npm install strapi-plugin-users-organizationunits
     ```
 
 2. update your current user schema. In you `extensions/users-permissions/models/User.settings.json` add attribute
